@@ -1,52 +1,11 @@
-const API_KEY = "f8d16fe4640d4bea95117413bf22dedb";
-const url = "https://newsapi.org/v2/everything?q=";
-const weatherApiKey = "1ebdb39ae9638da4e12c57453af79c0c"; // Replace with your OpenWeatherMap API key
-const weatherUrl = "https://api.openweathermap.org/data/2.5/weather";
+const NEWS_API_KEY = "f8d16fe4640d4bea95117413bf22dedb"; // Replace with your News API key
+const WEATHER_API_KEY = "1ebdb39ae9638da4e12c57453af79c0c"; // Replace with your OpenWeatherMap API key
+const newsUrl = "https://newsapi.org/v2/everything?q=";
+const weatherUrl = "https://api.openweathermap.org/data/2.5/weather?";
 
-// Fetch weather based on location
-function fetchWeather(lat, lon) {
-    fetch(`${weatherUrl}?lat=${lat}&lon=${lon}&units=metric&appid=${weatherApiKey}`)
-        .then((response) => response.json())
-        .then((data) => {
-            displayWeather(data);
-        })
-        .catch((error) => console.error("Error fetching weather data:", error));
-}
-
-// Display weather in the navigation bar
-function displayWeather(data) {
-    const weatherTemp = document.getElementById("weather-temp");
-    const weatherIcon = document.getElementById("weather-icon");
-
-    const temperature = Math.round(data.main.temp); // Temperature in Celsius
-    const iconUrl = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-
-    weatherTemp.textContent = `${temperature}°C`;
-    weatherIcon.src = iconUrl;
-}
-
-// Get the user's location
-function getUserLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                fetchWeather(lat, lon);
-            },
-            (error) => {
-                console.error("Error fetching location", error);
-            }
-        );
-    } else {
-        console.log("Geolocation is not supported by this browser.");
-    }
-}
-
-// Fetch news and weather on window load
 window.addEventListener("load", () => {
+    fetchWeather();
     fetchNews("India");
-    getUserLocation(); // Get the user's location on load
 });
 
 function reload() {
@@ -54,9 +13,14 @@ function reload() {
 }
 
 async function fetchNews(query) {
-    const res = await fetch(`${url}${query}&apiKey=${API_KEY}`);
-    const data = await res.json();
-    bindData(data.articles);
+    try {
+        const res = await fetch(`${newsUrl}${query}&apiKey=${NEWS_API_KEY}`);
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = await res.json();
+        bindData(data.articles);
+    } catch (error) {
+        console.error("Error fetching news:", error);
+    }
 }
 
 function bindData(articles) {
@@ -113,3 +77,29 @@ searchButton.addEventListener("click", () => {
     curSelectedNav?.classList.remove("active");
     curSelectedNav = null;
 });
+
+// Fetching Weather Information
+async function fetchWeather() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const res = await fetch(`${weatherUrl}lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`);
+            const data = await res.json();
+            displayWeather(data);
+        });
+    } else {
+        document.getElementById("weather-info").innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function displayWeather(data) {
+    const weatherStatus = document.getElementById("weather-status");
+    const temperature = document.getElementById("temperature");
+    const weatherIcon = document.getElementById("weather-icon");
+
+    weatherStatus.innerHTML = `Weather: ${data.weather[0].description}`;
+    temperature.innerHTML = `Temp: ${data.main.temp}°C`;
+    weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+    weatherIcon.style.display = "inline"; // Show the icon
+}
