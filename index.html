@@ -25,10 +25,10 @@
                 <input id="search-text" type="text" class="news-input" placeholder="e.g. Science">
                 <button id="search-button" class="search-button">Search</button>
             </div>
-            <!-- Weather Section -->
-            <div id="weather" class="weather-info flex">
-                <p id="weather-temp"></p>
-                <img id="weather-icon" src="" alt="weather icon">
+            <div class="weather-info" id="weather-info">
+                <p id="weather-status">Weather: Loading...</p>
+                <p id="temperature">Temp: --°C</p>
+                <img id="weather-icon" src="" alt="Weather Icon" style="display: none;">
             </div>
         </div>
     </nav>
@@ -36,7 +36,6 @@
 
     <main>
         <div class="cards-container container flex" id="cards-container">
-            
         </div>
     </main>
 
