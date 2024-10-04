@@ -1,11 +1,11 @@
-const NEWS_API_KEY = "f8d16fe4640d4bea95117413bf22dedb"; // Replace with your News API key
-const WEATHER_API_KEY = "1ebdb39ae9638da4e12c57453af79c0c"; // Replace with your OpenWeatherMap API key
-const newsUrl = "https://newsapi.org/v2/everything?q=";
+const API_KEY = "f8d16fe4640d4bea95117413bf22dedb";
+const WEATHER_API_KEY = "1ebdb39ae9638da4e12c57453af79c0c"; // Replace with your OpenWeather API key
+const url = "https://newsapi.org/v2/everything?q=";
 const weatherUrl = "https://api.openweathermap.org/data/2.5/weather?";
 
 window.addEventListener("load", () => {
-    fetchWeather();
     fetchNews("India");
+    fetchWeather();
 });
 
 function reload() {
@@ -13,14 +13,17 @@ function reload() {
 }
 
 async function fetchNews(query) {
-    try {
-        const res = await fetch(`${newsUrl}${query}&apiKey=${NEWS_API_KEY}`);
-        if (!res.ok) throw new Error("Network response was not ok");
-        const data = await res.json();
-        bindData(data.articles);
-    } catch (error) {
-        console.error("Error fetching news:", error);
+    const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+    const apiUrl = `${url}${query}&apiKey=${API_KEY}`;
+    const res = await fetch(proxyUrl + apiUrl);
+    
+    if (!res.ok) {
+        console.error("Failed to fetch news:", res.statusText);
+        return;
     }
+    
+    const data = await res.json();
+    bindData(data.articles);
 }
 
 function bindData(articles) {
@@ -78,28 +81,28 @@ searchButton.addEventListener("click", () => {
     curSelectedNav = null;
 });
 
-// Fetching Weather Information
+// Weather Functionality
 async function fetchWeather() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const res = await fetch(`${weatherUrl}lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric`);
-            const data = await res.json();
-            displayWeather(data);
+            const { latitude, longitude } = position.coords;
+            const weatherRes = await fetch(`${weatherUrl}lat=${latitude}&lon=${longitude}&appid=${WEATHER_API_KEY}&units=metric`);
+            const weatherData = await weatherRes.json();
+            displayWeather(weatherData);
+        }, () => {
+            console.error("Unable to retrieve your location");
         });
     } else {
-        document.getElementById("weather-info").innerHTML = "Geolocation is not supported by this browser.";
+        console.error("Geolocation is not supported by this browser.");
     }
 }
 
 function displayWeather(data) {
-    const weatherStatus = document.getElementById("weather-status");
-    const temperature = document.getElementById("temperature");
+    const weatherLocation = document.getElementById("weather-location");
+    const weatherTemp = document.getElementById("weather-temp");
     const weatherIcon = document.getElementById("weather-icon");
 
-    weatherStatus.innerHTML = `Weather: ${data.weather[0].description}`;
-    temperature.innerHTML = `Temp: ${data.main.temp}°C`;
-    weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
-    weatherIcon.style.display = "inline"; // Show the icon
+    weatherLocation.innerHTML = `${data.name}, ${data.sys.country}`;
+    weatherTemp.innerHTML = `${Math.round(data.main.temp)}°C`;
+    weatherIcon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
 }
