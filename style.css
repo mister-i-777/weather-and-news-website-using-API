@@ -124,46 +124,50 @@ main {
 
 .card {
     width: 360px;
-    min-height: 400px;
-    box-shadow: 0 0 4px #bbd0e2;
+    min-height: 260px;
+    background-color: white;
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card-header {
+    position: relative;
+    height: 200px;
 }
 
 .card-header img {
     width: 100%;
-    height: 200px;
+    height: 100%;
     object-fit: cover;
 }
 
 .card-content {
-    padding: 16px;
+    padding: 15px;
 }
 
 .card-content h3 {
-    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    margin-bottom: 5px;
 }
 
 .card-content h6 {
-    font-family: "Roboto", sans-serif;
-    color: var(--accent-color);
-    font-weight: 400;
-    margin-block: 8px;
+    color: var(--secondary-text-color);
+    margin-bottom: 10px;
+}
+
+.card-content p {
+    font-size: 14px;
+    color: var(--secondary-text-color);
 }
 
 .weather-info {
-    margin-left: 20px;
-    gap: 8px;
-}
-
-.weather-info p {
-    margin: 0;
-    font-size: 16px;
-    color: var(--primary-text-color);
-}
-
-.weather-info img {
-    width: 40px;
-    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
